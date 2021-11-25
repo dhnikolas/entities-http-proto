@@ -1,4 +1,4 @@
-module gitlab.com/dhnikolas/entities-http-proto
+module github.com/dhnikolas/entities-http-proto
 
 go 1.17
 
