@@ -1,4 +1,4 @@
-module ext-gitlab.netris.ru/ext/minstroy/msbi-entities-proto
+module gitlab.com/dhnikolas/entities-http-proto
 
 go 1.17
 
