@@ -1,0 +1,128 @@
+syntax = "proto3";
+option go_package="./;entities_http";
+package entities_http;
+
+import "google/protobuf/empty.proto";
+import "googleapis/google/api/field_behavior.proto";
+import "google/api/httpbody.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+
+service Entities {
+  rpc ListByFilter (filter) returns (google.api.HttpBody) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200";
+        value: {
+          description: "Успешный ответ";
+          schema: {
+            json_schema: {
+              ref: ".entities_http.eventsResponse";
+            }
+          }
+        }
+      }
+    };
+    option (google.api.http) = {
+      post: "/list"
+      body: "*"
+    };
+  }
+
+  rpc Info(google.protobuf.Empty) returns (infoResponse) {
+    option (google.api.http) = {
+      get: "/info"
+    };
+  }
+
+  rpc Meta(metaRequest) returns (metaResponse) {
+    option (google.api.http) = {
+      post: "/meta"
+      body: "*"
+    };
+  }
+}
+
+
+message filter {
+  int32 limit  = 1[
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).int32.gt = 0
+  ];
+  int32 offset = 2;
+  string dateStart = 3;
+  string dateEnd = 4;
+  repeated filterParam params = 5;
+}
+
+message response {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"count\": 12, \"items\":[{},{}]}"
+  };
+  //Количество записей
+  int32 count = 1;
+  repeated google.protobuf.Empty items = 2;
+}
+
+message filterParam {
+  string name = 1;
+  repeated string value = 2;
+}
+
+message infoResponse {
+  repeated item items = 1;
+}
+
+message item {
+  string name = 1;
+  string description = 2;
+  string createdDate = 3;
+}
+
+message metaRequest {
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).string = {min_len: 1}
+  ];
+  string email = 2[
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).string.email = true
+  ];
+  string phone = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).string = {
+      pattern:   "^\\+?7(9\\d{9})$",
+      max_bytes: 256,
+    }
+  ];
+}
+
+message metaResponse {
+  repeated meta meta = 1;
+}
+
+message meta {
+  string type = 1;
+  int32  count = 2;
+}
+
+message eventsResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"count\": 12, \"items\":[{},{}]}"
+  };
+  //Количество записей
+  int32 count = 1;
+  repeated google.protobuf.Empty items = 2;
+}
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Сервис неких сущностей"
+    version: "0.0.1"
+  };
+  schemes: [HTTP,HTTPS]
+  consumes: "application/json"
+  produces: "application/json"
+};
